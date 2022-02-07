@@ -40,10 +40,12 @@ def gaugeAngle():
 def imgMasking(img_fg, img_bg):
     #Homogenous matrix Load
     h_matrix = makeHMatrix()
-    img_fg = cv2.warpPerspective(img_fg, h_matrix, (800,800))
+    img_fg = cv2.warpPerspective(img_fg, h_matrix, (700,700))
 
     # 움직임이 허용 가능한 범위
-    aval_height, aval_width = 250,250
+    minWH = 300
+    aval_height = random.randint(0, minWH)
+    aval_width = random.randint(0, minWH)
 
     #Make alpha channel mask & invers
     _, mask = cv2.threshold(img_fg[:,:,3], 1, 255, cv2.THRESH_BINARY)
@@ -91,6 +93,8 @@ def mouseCallback(event, x, y, flgs, param):
             print('({},{})'.format(x,y))
             g_queue.append((x,y))
             counter += 1
+        else:
+            pass
 
 def saveParameter(img_class, img_size, h_matrix, scale_angle, pointer_angle):
     #class, img_size, center_pos, transformed_pos, scale_angle, pointer_angle 
@@ -98,19 +102,20 @@ def saveParameter(img_class, img_size, h_matrix, scale_angle, pointer_angle):
 
 def main():
     global g_queue
-    img_fg = cv2.imread('Datasets/gauge/gauge_0_1-removebg-preview.png', cv2.IMREAD_UNCHANGED)
-    img_bg = cv2.imread('Datasets/factory/factory_3.jpg', cv2.IMREAD_COLOR)
+    img_fg = cv2.imread('Datasets/rbg_gauge/gauge_0.png', cv2.IMREAD_UNCHANGED)
+    img_bg = cv2.imread('Datasets/factory/factory_0.jpg', cv2.IMREAD_COLOR)
 
     cv2.imshow('select angle', img_fg)
     cv2.setMouseCallback('select angle', mouseCallback, img_fg)
     cv2.waitKey(0)
     cv2.destroyWindow('select angle')
+    
 
     print(g_queue)
     #Gauge 이미지가 배경에 비해 너무 큰경우를 보정하기 위해 이미지 크기 수정'
     #해당 이미지의 1/2 1/2 위치에 Gauge의 중심이 위치할 것으로 판단
     img_size = (500,500)
-    img_fg = cv2.resize(img_fg,img_size)
+    img_fg = cv2.resize(img_fg,img_size) 
     
 
     result, h_matrix = imgMasking(img_fg, img_bg)
