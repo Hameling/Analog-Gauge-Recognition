@@ -43,7 +43,7 @@ def gaugeAngle():
 #gauge 시작/끝 좌표, pointer 좌표, 중심좌표
 def basicGauageData(dataset_path='Datasets/rbg_gauge'):
     global counter, g_queue, t_queue
-    for i, val in enumerate(os.listdir(dataset_path)[:2]):
+    for i, val in enumerate(os.listdir(dataset_path)):
         
         img_fg = cv2.imread(dataset_path + '/' + val, cv2.IMREAD_UNCHANGED)    
         img_fg = cv2.resize(img_fg, (500,500)) 
@@ -57,7 +57,7 @@ def basicGauageData(dataset_path='Datasets/rbg_gauge'):
         t_queue = []
 
     print(g_queue)
-    f = open(dataset_path + '/prior.txt', 'w')
+    f = open('Datasets/prior.txt', 'w')
     for i in g_queue:
         f.write(str(i[0][0]) + ',' + str(i[0][1]) + ',' + str(i[1][0]) + ',' + str(i[1][1]) + ',' + str(i[2][0]) + ',' + str(i[2][1]) + ',' + str(i[3][0]) + ',' + str(i[3][1]) + '\n')
     f.close()
@@ -69,8 +69,8 @@ def imgMasking(img_fg, img_bg):
 
     # 움직임이 허용 가능한 범위
     minWH = 300
-    aval_height = random.randint(0, minWH)
-    aval_width = random.randint(0, minWH)
+    aval_height = random.randint(0, minWH - 1)
+    aval_width = random.randint(0, minWH - 1)
 
     #Make alpha channel mask & invers
     _, mask = cv2.threshold(img_fg[:,:,3], 1, 255, cv2.THRESH_BINARY)
@@ -123,7 +123,7 @@ def mouseCallback(event, x, y, flgs, param):
 
             cv2.destroyWindow('select angle')
 
-def saveParameter(fp, img_class, h_matrix, prior_info):
+def saveParameter(fp, img_class, h_matrix, prior_info, test=False):
     #label = 'class, bb_st_px, bb_st_py, bb_ed_px, bb_end_py, m11, m12, m21, m22, m31, m32, ct_px, ct_py, st_px, st_py, ed_px, ed_py, pt_px, pt_py'
     
     #bb_pos 계산
@@ -159,12 +159,17 @@ def saveParameter(fp, img_class, h_matrix, prior_info):
     if tf_pos[1].max() > 1000.:
         df_tf_pos[3] = tf_pos[1].max()
 
-
-    input_txt = (str(img_class) + ',' +
+    if test:
+        input_txt = (str(img_class) + ',' +
+                str(df_tf_pos[0]) + ',' +  str(df_tf_pos[1]) + ',' + str(df_tf_pos[2]) + ',' + str(df_tf_pos[3]) + ',' + 
+                str(h_matrix[0][0]) + ',' + str(h_matrix[0][1]) + ',' + str(h_matrix[1][0]) + ',' + str(h_matrix[1][1]) + ',' + str(h_matrix[2][0]) + ',' + str(h_matrix[2][1]) + ',' +
+                str(prior_info[0][0]) + ',' + str(prior_info[0][1]) + ',' + str(prior_info[1][0]) + ',' + str(prior_info[1][1]) + ',' +
+                str(prior_info[2][0]) + ',' + str(prior_info[2][1]) + ',' + str(prior_info[3][0]) + ',' + str(prior_info[3][1])) + '\n'
+    else:
+        input_txt = (str(img_class) + ',' +
             str(df_tf_pos[0]) + ',' +  str(df_tf_pos[1]) + ',' + str(df_tf_pos[2]) + ',' + str(df_tf_pos[3]) + ',' + 
-            str(h_matrix[0][0]) + ',' + str(h_matrix[0][1]) + ',' + str(h_matrix[1][0]) + ',' + str(h_matrix[1][1]) + ',' + str(h_matrix[2][0]) + ',' + str(h_matrix[2][1]) + ',' +
-            str(prior_info[0][0]) + ',' + str(prior_info[0][1]) + ',' + str(prior_info[1][0]) + ',' + str(prior_info[1][1]) + ',' +
-            str(prior_info[2][0]) + ',' + str(prior_info[2][1]) + ',' + str(prior_info[3][0]) + ',' + str(prior_info[3][1])) + '\n'
+            str(h_matrix[0][0]) + ',' + str(h_matrix[0][1]) + ',' + str(h_matrix[1][0]) + ',' + str(h_matrix[1][1]) + ',' + str(h_matrix[2][0]) + ',' + str(h_matrix[2][1]) + ',' + prior_info)
+        
 
     print(input_txt)
     fp.write(input_txt)
@@ -200,7 +205,7 @@ def main():
     cv2.imshow('result', result)
 
     f = open('Datasets/labels.txt', 'w')
-    saveParameter(f, 0, h_matrix, t_queue)
+    saveParameter(f, 0, h_matrix, t_queue, True)
     f.close()
     cv2.waitKey(0)
 
@@ -209,39 +214,43 @@ def main():
     cv2.destroyAllWindows()
 
 
-def makeDataset():
+def makeDataset(dataset_size=100000):
     fg_path = 'Datasets/rbg_gauge'
     bg_path = 'Datasets/factory_all'
     max_bg_size = len(os.listdir(bg_path))
 
-    f = open(fg_path + '/label.txt', 'r')
+    f = open('Datasets/prior.txt', 'r')
     gauge_info = f.readlines()
     f.close()
 
     f = open('Datasets/labels.txt', 'w')
-    label = 'class, bb_st_px, bb_st_py, bb_ed_px, bb_end_py, m11, m12, m21, m22, m31, m32, ct_px, ct_py, st_px, st_py, ed_px, ed_py, pt_px, pt_py'
+    label = 'class, bb_st_px, bb_st_py, bb_ed_px, bb_end_py, m11, m12, m21, m22, m31, m32, ct_px, ct_py, st_px, st_py, ed_px, ed_py, pt_px, pt_py\n'
     f.write(label)
 
-    for i in range(len(0,100000)):
-        r_idx = random.randint(0, max_bg_size)
-        gauge_idx = random.randint(0, 10)
+    for i in range(0,dataset_size):
+        r_idx = random.randint(0, max_bg_size - 1)
+        gauge_idx = random.randint(0, 10 - 1)
         fg_name =  os.listdir(fg_path)[gauge_idx]
 
         img_fg = cv2.imread(fg_path + '/' + fg_name, cv2.IMREAD_UNCHANGED)
-        img_bg = cv2.imread(bg_path + '/' + str(r_idx) + '/.png', cv2.IMREAD_COLOR)
+        img_bg = cv2.imread(bg_path + '/' + str(r_idx) + '.png', cv2.IMREAD_COLOR)
 
         img_size = (500,500)
         img_fg = cv2.resize(img_fg,img_size) 
 
-        result, h_matrix = imgMasking(img_fg, img_bg)
+        #여기서 배경 crop하는 코드가 필요하네
+        bg_st_h = random.randint(0, img_bg.shape[0] - 1000)
+        bg_st_w = random.randint(0, img_bg.shape[1] - 1000)
+        result, h_matrix = imgMasking(img_fg, img_bg[bg_st_h:bg_st_h+1000, bg_st_w:bg_st_w+1000])
 
-        saveParameter(f, h_matrix, gauge_info[gauge_idx])
+        saveParameter(f, 0, h_matrix, gauge_info[gauge_idx])
 
-        cv2.imwrite('Datasets/synthetic_data' + str(i) + '.png', result)
+        cv2.imwrite('Datasets/synthetic_data/' + str(i) + '.png', result)
 
     f.close()
 
 if __name__ == '__main__':
     #main()
     #preprocessing for data labeling
-    basicGauageData()
+    #basicGauageData()
+    makeDataset(10)
