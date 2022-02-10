@@ -250,7 +250,7 @@ def makeDataset(dataset_size=100000):
     f.close()
 
 if __name__ == '__main__':
-    #main()
+    main()
     #preprocessing for data labeling
     #basicGauageData()
-    makeDataset(1000)
+    #makeDataset(1000)
