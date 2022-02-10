@@ -148,15 +148,15 @@ def saveParameter(fp, img_class, h_matrix, prior_info, test=False):
     
     print(tf_pos)
 
-    df_tf_pos = [0.,0.,1000.,1000.]
+    df_tf_pos = [0., 0., 1000., 1000.]
     if tf_pos[0].min() > 0.:
         df_tf_pos[0] = tf_pos[0].min()
     if tf_pos[1].min() > 0.:
         df_tf_pos[1] = tf_pos[1].min()
 
-    if tf_pos[0].max() > 1000.:
+    if tf_pos[0].max() < 1000.:
         df_tf_pos[2] = tf_pos[0].max()
-    if tf_pos[1].max() > 1000.:
+    if tf_pos[1].max() < 1000.:
         df_tf_pos[3] = tf_pos[1].max()
 
     if test:
@@ -204,7 +204,7 @@ def main():
     #result = cv2.resize(result, (800,800))
     cv2.imshow('result', result)
 
-    f = open('Datasets/labels.txt', 'w')
+    f = open('Datasets/labels.csv', 'w')
     saveParameter(f, 0, h_matrix, t_queue, True)
     f.close()
     cv2.waitKey(0)
@@ -223,8 +223,8 @@ def makeDataset(dataset_size=100000):
     gauge_info = f.readlines()
     f.close()
 
-    f = open('Datasets/labels.txt', 'w')
-    label = 'class, bb_st_px, bb_st_py, bb_ed_px, bb_end_py, m11, m12, m21, m22, m31, m32, ct_px, ct_py, st_px, st_py, ed_px, ed_py, pt_px, pt_py\n'
+    f = open('Datasets/labels.csv', 'w')
+    label = 'class,bb_st_px,bb_st_py,bb_ed_px,bb_ed_py,m11,m12,m21,m22,m31,m32,ct_px,ct_py,st_px,st_py,ed_px,ed_py,pt_px,pt_py\n'
     f.write(label)
 
     for i in range(0,dataset_size):
@@ -238,7 +238,7 @@ def makeDataset(dataset_size=100000):
         img_size = (500,500)
         img_fg = cv2.resize(img_fg,img_size) 
 
-        #여기서 배경 crop하는 코드가 필요하네
+        #background random crop
         bg_st_h = random.randint(0, img_bg.shape[0] - 1000)
         bg_st_w = random.randint(0, img_bg.shape[1] - 1000)
         result, h_matrix = imgMasking(img_fg, img_bg[bg_st_h:bg_st_h+1000, bg_st_w:bg_st_w+1000])
@@ -253,4 +253,4 @@ if __name__ == '__main__':
     #main()
     #preprocessing for data labeling
     #basicGauageData()
-    makeDataset(10)
+    makeDataset(1000)

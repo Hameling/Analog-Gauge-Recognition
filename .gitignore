@@ -182,3 +182,15 @@ cython_debug/
 # Additional file
 Datasets/factory_all/
 Datasets/synthetic_data/
+Datasets/synthetic_data2/
+
+Datasets/crop_data/
+
+Datasets/*.csv
+
+result_img/
+train_result.txt
+
+pair1/
+pair2/
+pair3/
