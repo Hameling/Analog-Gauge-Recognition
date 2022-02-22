@@ -191,6 +191,10 @@ Datasets/*.csv
 result_img/
 train_result.txt
 
-pair1/
-pair2/
-pair3/
+
+test_data/
+final_img/
+reaug_data.csv
+*.txt
+img2h_epoch20/
+data_reaugment.py

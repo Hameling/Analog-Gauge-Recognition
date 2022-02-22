@@ -124,7 +124,7 @@ def mouseCallback(event, x, y, flgs, param):
             cv2.destroyWindow('select angle')
 
 def saveParameter(fp, img_class, h_matrix, prior_info, test=False):
-    #label = 'class, bb_st_px, bb_st_py, bb_ed_px, bb_end_py, m11, m12, m21, m22, m31, m32, ct_px, ct_py, st_px, st_py, ed_px, ed_py, pt_px, pt_py'
+    #label = 'class, bb_st_px, bb_st_py, bb_ed_px, bb_end_py, m11, m12, m13, m21, m22, m23, m31, m32, ct_px, ct_py, st_px, st_py, ed_px, ed_py, pt_px, pt_py'
     
     #bb_pos 계산
     left_top = np.array([[0],[0],[1]], dtype=np.float32)
@@ -162,13 +162,17 @@ def saveParameter(fp, img_class, h_matrix, prior_info, test=False):
     if test:
         input_txt = (str(img_class) + ',' +
                 str(df_tf_pos[0]) + ',' +  str(df_tf_pos[1]) + ',' + str(df_tf_pos[2]) + ',' + str(df_tf_pos[3]) + ',' + 
-                str(h_matrix[0][0]) + ',' + str(h_matrix[0][1]) + ',' + str(h_matrix[1][0]) + ',' + str(h_matrix[1][1]) + ',' + str(h_matrix[2][0]) + ',' + str(h_matrix[2][1]) + ',' +
+                str(h_matrix[0][0]) + ',' + str(h_matrix[0][1]) + ',' + str(h_matrix[0][2]) + ',' + 
+                str(h_matrix[1][0]) + ',' + str(h_matrix[1][1]) + ',' + str(h_matrix[1][2]) + ',' + 
+                str(h_matrix[2][0]) + ',' + str(h_matrix[2][1]) + ',' +
                 str(prior_info[0][0]) + ',' + str(prior_info[0][1]) + ',' + str(prior_info[1][0]) + ',' + str(prior_info[1][1]) + ',' +
                 str(prior_info[2][0]) + ',' + str(prior_info[2][1]) + ',' + str(prior_info[3][0]) + ',' + str(prior_info[3][1])) + '\n'
     else:
         input_txt = (str(img_class) + ',' +
             str(df_tf_pos[0]) + ',' +  str(df_tf_pos[1]) + ',' + str(df_tf_pos[2]) + ',' + str(df_tf_pos[3]) + ',' + 
-            str(h_matrix[0][0]) + ',' + str(h_matrix[0][1]) + ',' + str(h_matrix[1][0]) + ',' + str(h_matrix[1][1]) + ',' + str(h_matrix[2][0]) + ',' + str(h_matrix[2][1]) + ',' + prior_info)
+            str(h_matrix[0][0]) + ',' + str(h_matrix[0][1]) + ',' + str(h_matrix[0][2]) + ',' + 
+            str(h_matrix[1][0]) + ',' + str(h_matrix[1][1]) + ',' + str(h_matrix[1][2]) + ',' + 
+            str(h_matrix[2][0]) + ',' + str(h_matrix[2][1]) + ',' + prior_info)
         
 
     print(input_txt)
@@ -224,7 +228,7 @@ def makeDataset(dataset_size=100000):
     f.close()
 
     f = open('Datasets/labels.csv', 'w')
-    label = 'class,bb_st_px,bb_st_py,bb_ed_px,bb_ed_py,m11,m12,m21,m22,m31,m32,ct_px,ct_py,st_px,st_py,ed_px,ed_py,pt_px,pt_py\n'
+    label = 'class,bb_st_px,bb_st_py,bb_ed_px,bb_ed_py,m11,m12,m13,m21,m22,m23,m31,m32,ct_px,ct_py,st_px,st_py,ed_px,ed_py,pt_px,pt_py\n'
     f.write(label)
 
     for i in range(0,dataset_size):
@@ -250,7 +254,7 @@ def makeDataset(dataset_size=100000):
     f.close()
 
 if __name__ == '__main__':
-    main()
+    # main()
     #preprocessing for data labeling
     #basicGauageData()
-    #makeDataset(1000)
+    makeDataset(1000)
